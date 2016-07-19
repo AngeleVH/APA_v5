@@ -189,7 +189,7 @@ elseif flagHeels
         xlabel(haxes6,'Temps (s)','FontName','Times New Roman','FontSize',10);
         ylabel(haxes6,'Z marqueurs talons (mm)','FontName','Times New Roman','FontSize',12);
         legend(leg,'Left','Right');
-        xlim([0 TFin])
+        xlim(haxes6,[0 TFin]);
         set(findobj('tag','PlotPF'),'Value',0); set(findobj('tag','PlotAccelCG'),'Value',0);
     catch
     end
@@ -198,7 +198,7 @@ elseif flagAccelCG
     plot(haxes6,t,APA.Trial(pos).CG_Power.Data(1:Fin)); afficheY_v2(0,':k',haxes6);
     xlabel(haxes6,'Temps (s)','FontName','Times New Roman','FontSize',10);
     ylabel(haxes6,'Puissance (Watt)','FontName','Times New Roman','FontSize',12);
-    xlim([0 TFin])
+    xlim(haxes6,[0 TFin]);
     set(findobj('tag','PlotPF'),'Value',0); set(findobj('tag','PlotHeels'),'Value',0);
 end
 %Affichage des vitesses en fonction des choix de l'utilisateur et présence de données dérivées
@@ -2025,7 +2025,8 @@ for i = 1:nb_acq
         Trial_APA.CG_Power = Signal(Data,Freq_ana,'tag',{'X','Y','Z'},...
             'units',{'W','W','W'},'TrialNum',myNum,'TrialName',myTrialName);
         
-        % on ajoute les données de trajectoires des marqueurs talons
+        % on ajoute les données de trajectoires des marqueurs talons (si données ciném dispos)
+        try
         cellfind = @(string)(@(cell_contents)(strcmp(string,cell_contents)));
         indx = 1:length(DATA.noms);
         Fin_cin = floor(Fin/5); % pour savoir où on coupe les données cinématiques
@@ -2041,7 +2042,9 @@ for i = 1:nb_acq
         clear Data,
         Data = DATA.coord(1:Fin_cin,(idx_LHEE-1)*3+1:idx_LHEE*3)';
         Trial_APA.LHEE = Signal(Data,200,'tag',{'X','Y','Z'},'units',{'mm','mm','mm'},'TrialNum',myNum,'TrialName',myTrialName);
-             
+        catch
+            warning('Pas de marqueurs sur talons disponibles');
+        end
         champs = {'Cote','t_Reaction','t_APA','APA_antpost','APA_lateral','StepWidth','t_swing1',...
             't_DA','t_swing2','t_cycle_marche','Longueur_pas','V_swing1','Vy_FO1','t_VyFO1','Vm','t_Vm',...
             'VML_absolue','Freq_InitiationPas','Cadence','VZmin_APA','V1','V2','Diff_V','Freinage',...
